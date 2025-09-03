@@ -1,27 +1,31 @@
 <?php
-use function Livewire\Volt\{state, rules};
+use function Livewire\Volt\{state, mount, rules};
 use App\Models\Article;
-state(['title', 'body']);
+state(['article', 'title', 'body']);
+mount(function (Article $article) {
+    $this->article = $article;
+    $this->title = $article->title;
+    $this->body = $article->body;
+});
 // バリデーションルールを定義
 rules([
     'title' => 'required|string|max:50',
     'body' => 'required|string|max:2000',
 ]);
-// 論文を保存する関数
-$store = function () {
+
+$update = function () {
     $this->validate(); // バリデーションチェック
-    Article::create([
-        'title' => $this->title,
-        'body' => $this->body,
-    ]);
-    return redirect()->route('articles.index');
+    $this->article->update($this->all());
+    return redirect()->route('articles.show', $this->article);
+    $this->article->update($this->all());
+    return redirect()->route('articles.show', $this->article);
 };
 ?>
 
 <div>
-    <h1>新規論文投稿</h1>
+    <h1>投稿論文編集</h1>
 
-    <form wire:submit="store">
+    <form wire:submit="update">
         <p>
             <label for="title">論文タイトル</label>
             @error('title')
@@ -39,6 +43,6 @@ $store = function () {
             <textarea wire:model="body" id="body"></textarea>
         </p>
 
-        <button type="submit">投稿</button>
+        <button type="submit">更新</button>
     </form>
 </div>
